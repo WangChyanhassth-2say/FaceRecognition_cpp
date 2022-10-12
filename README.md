@@ -65,6 +65,7 @@ in src you can see Face.h, FaceDet.cpp and FaceRec.cpp
 
 ##### Face.h  
 in Face.h we defined:  
+
     class Timer for logging the timestamp  
     
     two inline function that got vector cosine  
