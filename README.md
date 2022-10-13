@@ -8,12 +8,13 @@ ensure you have cmake and makefile
 ensure you have opencv in your env  
 onnx lib is provided in ./3rdparty/  
 
-use the command for install  
+use the command    
 ```
 mkdir build  
 cd build  
 cmake ..  
-make && ./main  
+make  
+./main  
 ```
 
 ## Details
@@ -27,7 +28,7 @@ make && ./main
 #### // for human face detect  
 we provide reimplemented Google BlazeFace-Front model  
 it's a lightweight model that easy to deploy and extremely fast  
-we choose the front model only, which needs the input shape with [1, 3, 128, 128]  
+we choose the front model only, which needs the input shape with [1, 3, 256, 256]  
 tarined on 5-keypoints dataset, which is easier to align than mediapipe provided 6-keypoints verion  
 by the way, we're not using pre-anchor here for speed  
 ```
@@ -114,9 +115,9 @@ the functions remain
 ```
 
 TODO: 
-- [ ] remove target_size input, make it stable  
-- [ ] fix bugs that pad in face detect will reduce the performance   
-- [ ] provide imgNorm function  
-- [ ] provide Release function  
+- [x] remove target_size input, make it stable  
+- [x] fix bugs that pad in face detect will reduce the performance   
+- [x] provide imgNorm function  
+- [x] provide Release function  
 - [ ] provide liveness detector  
 - [ ] provide opencv libs
