@@ -33,7 +33,7 @@ by the way, we're not using pre-anchor here for speed
 ```
 inputs:  
     name: input  
-    type: float32[1,3,128,128]  
+    type: float32[1,3,256,256]  
     
 outputs:  
     name: boxes  
