@@ -92,10 +92,11 @@ class DetNet
 // see doc
 public:
     DetNet();
-    DetNet(const char* model_path, const int target_size=256);
+    DetNet(const char* model_path);// , const int target_size=256);
     void Init(const char* model_path);
     inline void SetDefaultParams();
     inline void Release();
+    void imgNorm(const cv::Mat& image, cv::Mat& image_blob);
     void nms(std::vector<bbox> &input_boxes, float NMS_THRESH);
     void Detect(cv::Mat& bgr, std::vector<bbox>& boxes);
     void create_anchor(std::vector<box> &anchor, int w, int h);
@@ -117,7 +118,7 @@ class RecNet
 // see doc
 public:
     RecNet();
-    RecNet(const char* model_path, const int target_size=112);
+    RecNet(const char* model_path);
     void Init(const char* model_path);
     inline void SetDefaultParams();
     inline void Release();
@@ -132,7 +133,6 @@ public:
     ~RecNet();
 
 public:
-    bbox _bbox_detected;
     int _target_size;
     cv::dnn::Net recnet;
 };

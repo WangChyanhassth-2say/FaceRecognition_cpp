@@ -9,11 +9,16 @@ RecNet::RecNet():
 
 inline void RecNet::Release()
 {
-        // delete recnet; // TODO
+    cv::dnn::Net* Net = &recnet;
+    if (Net != nullptr)
+    {
+        recnet.~Net();
+        Net = nullptr;
+    }
 }
 
-RecNet::RecNet(const char* model_path, const int target_size):
-        _target_size(target_size)
+RecNet::RecNet(const char* model_path):
+        _target_size(112)
 {
     Init(model_path);
 }
@@ -35,8 +40,8 @@ void RecNet::Recognize(cv::Mat& bgr, bbox bbox, std::vector<float>& features)
     float scale = 1.f;
 
     cv::Mat in = Process(bgr, bbox);
-    // cv::imshow("face", in);
-    // cv::waitKey(1);
+    cv::imshow("face", in);
+    cv::waitKey(1);
 
     in = cv::dnn::blobFromImage(in);
 

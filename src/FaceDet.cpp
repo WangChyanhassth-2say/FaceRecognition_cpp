@@ -1,4 +1,5 @@
 #include "Face.h"
+#include <cassert>
 #include <opencv2/dnn.hpp>
 
 
@@ -12,14 +13,19 @@ DetNet::DetNet():
 
 inline void DetNet::Release()
 {
-        // delete detnet; // TODO
+    cv::dnn::Net* Net = &detnet;
+    if (Net != nullptr)
+    {
+        detnet.~Net();
+        Net = nullptr;
+    }
 }
 
-DetNet::DetNet(const char* model_path, const int target_size):
+DetNet::DetNet(const char* model_path):
         _nms(0.5),
         _threshold(0.65),
         _mean_val{104.f, 117.f, 123.f},
-        _target_size(target_size)
+        _target_size(256)
 {
     Init(model_path);
 }
@@ -29,15 +35,40 @@ void DetNet::Init(const char* model_path)
     detnet = cv::dnn::readNetFromONNX(model_path);
 }
 
+void DetNet::imgNorm(const cv::Mat& image, cv::Mat& image_blob)
+{
+    cv::Mat input;
+    image.copyTo(input);
+
+    std::vector<cv::Mat> channels, channel_p;
+    cv::split(input, channels);
+    cv::Mat R, G, B;
+    B = channels.at(0);
+    G = channels.at(1);
+    R = channels.at(2);
+    
+    B = B + _mean_val[0] - 127.5;
+    G = G + _mean_val[1] - 127.5;
+    R = R + _mean_val[2] - 127.5;
+
+    channel_p.push_back(B);
+    channel_p.push_back(G);
+    channel_p.push_back(R);
+
+    cv::Mat outt;
+    cv::merge(channel_p, outt);
+    image_blob = outt; 
+}
+
 void DetNet::Detect(cv::Mat& bgr, std::vector<bbox>& boxes)
 {    
+    const int target_size = _target_size;
+    int width = bgr.cols;
+    int height = bgr.rows;
     Timer timer;
     timer.tic();
 
     boxes.clear();
-    const int target_size = _target_size;
-    int width = bgr.cols;
-    int height = bgr.rows;
     // letterbox pad to multiple of 32
     int w = width;
     int h = height;
@@ -57,13 +88,16 @@ void DetNet::Detect(cv::Mat& bgr, std::vector<bbox>& boxes)
     }
 
     cv::Mat in;
+
     cv::resize(bgr, in, cv::Size(w, h));
+    this->imgNorm(in, in);
     int wpad = (w + 15) / 16 * 16 - w;
     int hpad = (h + 15) / 16 * 16 - h;
 
     cv::Mat in_pad;
     cv::copyMakeBorder(in, in_pad, hpad / 2, hpad - hpad / 2, wpad / 2, wpad - wpad / 2, cv::BORDER_CONSTANT, 114.f);
-
+    cv::imshow("in_pad", in_pad);
+    cv::waitKey(1);
     in_pad = cv::dnn::blobFromImage(in_pad);
 
     timer.toc("det precoss:");
@@ -135,6 +169,7 @@ void DetNet::Detect(cv::Mat& bgr, std::vector<bbox>& boxes)
 
     for (int j = 0; j < total_box.size(); ++j)
     {   
+        // std::cout << total_box[j].x1 << "\t\t" << total_box[j].x2 << "\t\t" << total_box[j].y1 << "\t\t" << total_box[j].y2 << "\t\t" << std::endl;
         total_box[j].x1 = (total_box[j].x1 - (wpad / 2)) / scale;
         total_box[j].y1 = (total_box[j].y1 - (hpad / 2)) / scale;
         total_box[j].x2 = (total_box[j].x2 - (wpad / 2)) / scale;

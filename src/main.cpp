@@ -12,9 +12,10 @@
 #include "opencv2/video/video.hpp"
 #endif
 
+
 int main(int argc, char** argv)
 {
-    // cv::setNumThreads(16);
+    cv::setNumThreads(1);
     
     const char* det_model_path = "../models/blazeface_simmir.onnx";
     //  const int det_side = 256;// able to pad // only for 128 times // pad may cost bugs
@@ -24,7 +25,7 @@ int main(int argc, char** argv)
     RecNet recognizer(rec_model_path);
     Timer timer;
 
-    // cv::VideoCapture cap = cv::VideoCapture(0);
+    cv::VideoCapture cap = cv::VideoCapture(0);
     cv::Mat img;
     cv::Mat face;
     std::vector<bbox> boxes;
@@ -35,22 +36,29 @@ int main(int argc, char** argv)
     float score_gao;
     float score_gao2;
     float score_me;
-
+    
     img = cv::imread("../images/gao2.jpg");
-    cv::resize(img, img, cv::Size(256, 256));
+    cv::resize(img, img, cv::Size(1024, 1024));
     detector.Detect(img, boxes);
     recognizer.Recognize(img, boxes[0], gao2);
 
     img = cv::imread("../images/me.jpg");
-    cv::resize(img, img, cv::Size(256, 256));
+    cv::resize(img, img, cv::Size(1024, 1024));    
     detector.Detect(img, boxes);
     recognizer.Recognize(img, boxes[0], me);
 
+    int count = 0;
     while (1)
     {
-        // cap >> img;
-        img = cv::imread("../images/gao4.jpg");
-        cv::resize(img, img, cv::Size(256, 256));
+        count += 1;
+        if(count > 50)
+        {
+            detector.~DetNet();
+            break;
+        }
+        cap >> img;
+        // img = cv::imread("../images/me.jpg");
+        // cv::resize(img, img, cv::Size(1280, 864));
         float scale = 1.f;
         if (img.empty())
         {
