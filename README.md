@@ -124,9 +124,9 @@ Detect function
     # directly returns the features of the man in the bbox, just one guy  
     
 the functions remain  
-    # to make the face align using the 5-points info  
+    # for making the face align using the 5-points info  
     # we provide two ways to handle that  
-    # similar transform is a little bit heavier, but robuster with the yaw and pitch rotations   
+    # similarity transform is a little bit heavier way, but robuster with the yaw and pitch rotations   
     # while we also able to align with the angle between the line of two eyes and the horizen, see details in LiveNet  
 ```
 
