@@ -1,5 +1,5 @@
 # FaceRecognition_cpp
-face detect, align and recognize via onnx models implemented with cpp
+face detect, align, liveness check, recognize via onnx models implemented with cpp
 
 ## Quick Strat  
 ### // for installing  
@@ -62,8 +62,22 @@ outputs:
     type: float32[1,128]  
 ```
 
+#### // for human face liveness check  
+we use miniFASNet model  
+it can check two different type of spoofing  
+so the output dim is 3  
+1 is real and 0 && 2 are two kinds of spoofing  
+```
+inputs:  
+    name: input  
+    type: float32[1,3,80,80]  
+    
+outputs:  
+    name: scores  
+    type: float32[1,3]  
+```
 #### // for cpp implement details  
-in src you can see Face.h, FaceDet.cpp and FaceRec.cpp  
+in src you can see Face.h and cpps  
 
 ##### Face.h  
 in Face.h we defined:  
@@ -77,6 +91,8 @@ in Face.h we defined:
     class DetNet for face detect  
     
     class RecNet for face features recognition  
+    
+    class LiveNet for face liveness check  
 
 ##### FaceDet.cpp
 in FaceDet.cpp we implemented:  
@@ -87,8 +103,7 @@ DetNet initial funtion
 Detect function  
     # needs cv::Mat bgr_image and a std::vector<bbox> output container  
     # in this function we clear the output vector first  
-    # then we got bgr_image resize, pad and bolb, sending it into the model  
-    # no imgNorm here because we may add the liveness detector later  
+    # then we got bgr_image resize, norm, pad and bolb, sending it into the model  
     # after post process we got face bbox with its location, confidence and 5-points info  
     # we got a loop for multi-faces, so the output is std::vector<bbox>, means multi bboxes  
     
@@ -103,22 +118,38 @@ RecNet initial funtion
     # needs const char* model_path inputs  
 
 Detect function  
-    # needs cv::Mat bgr_image, this guy's bbox, and a std::vector<float> feature container for him  
+    # needs cv::Mat bgr_image, this guy's bbox and a std::vector<float> feature container for him  
     # in this function we clear the features vector first  
     # then we got bgr_image align with the face, crop and blob, sending it into the model  
     # directly returns the features of the man in the bbox, just one guy  
     
 the functions remain  
     # to make the face align using the 5-points info  
-    # we provide two ways to finish that  
+    # we provide two ways to handle that  
     # similar transform is a little bit heavier, but robuster with the yaw and pitch rotations   
-    # while we also able to align with the angle between the line of two eyes and the horizen  
+    # while we also able to align with the angle between the line of two eyes and the horizen, see details in LiveNet  
 ```
+
+##### FaceLive.cpp
+in FaceLive.cpp we implemented:  
+```
+LiveNet initial funtion   
+    # needs const char* model_path inputs  
+
+Detect function  
+    # needs cv::Mat bgr_image, this guy's bbox and a checkbox as the container of outputs  
+    # in this function we init the checkbox first  
+    # then we got bgr_image align with two-eyes angle, considering that similarity transform may reduce performance  
+    # then crop with a twice bigger bbox, sending it into the model  
+    # for the post processing we set a threshold, using double check to make the output as ["fake", "real", "maybe"]  
+
+```
+
 
 TODO: 
 - [x] remove target_size input, make it stable  
 - [x] fix bugs that pad in face detect will reduce the performance   
 - [x] provide imgNorm function  
 - [x] provide Release function  
-- [ ] provide liveness detector  
+- [x] provide liveness detector  
 - [ ] provide opencv libs
