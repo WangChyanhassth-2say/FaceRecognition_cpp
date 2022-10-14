@@ -76,19 +76,20 @@ void DetNet::Detect(cv::Mat& bgr, std::vector<bbox>& boxes)
 
     if (w > h)
     {
+        assert(_target_size * h % w == 0);
         scale = (float)target_size / w;
         w = target_size;
         h = h * scale;
     }
     else
     {
+        assert(_target_size * w % h == 0);
         scale = (float)target_size / h;
         h = target_size;
         w = w * scale;
     }
 
     cv::Mat in;
-
     cv::resize(bgr, in, cv::Size(w, h));
     this->imgNorm(in, in);
     int wpad = (w + 15) / 16 * 16 - w;
@@ -96,8 +97,8 @@ void DetNet::Detect(cv::Mat& bgr, std::vector<bbox>& boxes)
 
     cv::Mat in_pad;
     cv::copyMakeBorder(in, in_pad, hpad / 2, hpad - hpad / 2, wpad / 2, wpad - wpad / 2, cv::BORDER_CONSTANT, 114.f);
-    cv::imshow("in_pad", in_pad);
-    cv::waitKey(1);
+    // cv::imshow("in_pad", in_pad);
+    // cv::waitKey(1);
     in_pad = cv::dnn::blobFromImage(in_pad);
 
     timer.toc("det precoss:");
@@ -169,7 +170,6 @@ void DetNet::Detect(cv::Mat& bgr, std::vector<bbox>& boxes)
 
     for (int j = 0; j < total_box.size(); ++j)
     {   
-        // std::cout << total_box[j].x1 << "\t\t" << total_box[j].x2 << "\t\t" << total_box[j].y1 << "\t\t" << total_box[j].y2 << "\t\t" << std::endl;
         total_box[j].x1 = (total_box[j].x1 - (wpad / 2)) / scale;
         total_box[j].y1 = (total_box[j].y1 - (hpad / 2)) / scale;
         total_box[j].x2 = (total_box[j].x2 - (wpad / 2)) / scale;

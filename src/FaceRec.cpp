@@ -34,14 +34,10 @@ void RecNet::Recognize(cv::Mat& bgr, bbox bbox, std::vector<float>& features)
     timer.tic();
 
     features.clear();
-    const int target_size = _target_size;
-    int width = bgr.cols;
-    int height = bgr.rows;
-    float scale = 1.f;
 
     cv::Mat in = Process(bgr, bbox);
-    cv::imshow("face", in);
-    cv::waitKey(1);
+    // cv::imshow("face", in);
+    // cv::waitKey(1);
 
     in = cv::dnn::blobFromImage(in);
 
@@ -55,7 +51,7 @@ void RecNet::Recognize(cv::Mat& bgr, bbox bbox, std::vector<float>& features)
     timer.toc("rec:");    
 
     std::vector<float> tmp;
-    std::vector<float> *ptr = &out;//.ptr<float>(0);
+    std::vector<float> *ptr = &out;
     for(int i = 0; i < out.size(); ++i)
     {
         features.push_back((*ptr)[i]);
@@ -189,14 +185,6 @@ cv::Mat RecNet::SimilarTransform(cv::Mat src,cv::Mat dst)
     return T;
 }
 
-inline double RecNet::count_angle(float landmark[5][2])
-{
-    double a = landmark[2][1] - (landmark[0][1] + landmark[1][1]) / 2;
-    double b = landmark[2][0] - (landmark[0][0] + landmark[1][0]) / 2;
-    double angle = atan(abs(b) / a) * 180.0 / M_PI;
-    return angle;
-}
-
 cv::Mat RecNet::Process(cv::Mat& SmallFrame, bbox& bbox)
 {
     // gt face landmark
@@ -220,9 +208,6 @@ cv::Mat RecNet::Process(cv::Mat& SmallFrame, bbox& bbox)
     };
     cv::Mat dst(5, 2, CV_32FC1, v2);
     memcpy(dst.data, v2, 2*5*sizeof(float));
-
-    // lighter way
-    // Angle = count_angle(v2);
 
     cv::Mat aligned = SmallFrame.clone();
     cv::Mat m = SimilarTransform(dst, src);

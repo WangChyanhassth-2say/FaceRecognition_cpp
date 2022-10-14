@@ -16,8 +16,8 @@ class Timer
 // function tic is for logging start timestamp
 // and the function toc is for printing
 //
-// It's just a simple implement, but useful enough for release version
-// meeting bugs while waiting such as cv::waitKey(0) or input
+// It's just a simple implement, but useful enough for testing
+// meeting bugs while system is waiting like cv::waitKey(0) or input()
 public:
     std::stack<high_resolution_clock::time_point> tictoc_stack;
     
@@ -85,6 +85,15 @@ struct box
     float sy;
 };
 
+struct checkbox
+{   
+// isReal == 0 means fake
+// isReal == 1 means real
+// isReal == 2 means maybe
+    int isReal;
+    float conf;
+};
+
 class DetNet
 {
 // My DetNet Implement
@@ -92,7 +101,7 @@ class DetNet
 // see doc
 public:
     DetNet();
-    DetNet(const char* model_path);// , const int target_size=256);
+    DetNet(const char* model_path);
     void Init(const char* model_path);
     inline void SetDefaultParams();
     inline void Release();
@@ -129,11 +138,33 @@ public:
     cv::Mat ElementwiseMinus(const cv::Mat &A,const cv::Mat &B);
     cv::Mat MeanAxis0(const cv::Mat &src);
     cv::Mat Process(cv::Mat& SmallFrame, bbox& bbox);
-    inline double count_angle(float landmark[5][2]); // lighter way
     ~RecNet();
 
 public:
     int _target_size;
     cv::dnn::Net recnet;
+};
+
+class LiveNet
+{
+// My LiveNet Implement
+// 
+// see doc
+public:
+    LiveNet();
+    LiveNet(const char* model_path);
+    void Init(const char* model_path);
+    inline void SetDefaultParams();
+    inline void Release();
+    void LiveCheck(cv::Mat& bgr, bbox bbox, checkbox& livecheckbox);
+    cv::Mat Process(cv::Mat& bgr, bbox& bbox);
+    inline double count_angle(float landmark[2][2]);
+    inline std::vector<float> softmax(std::vector<float> input);
+    ~LiveNet();
+
+public:
+    int _target_size;
+    float _threshold;
+    cv::dnn::Net livenet;
 };
 #endif 
