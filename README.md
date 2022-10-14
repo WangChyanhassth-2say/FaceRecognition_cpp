@@ -49,6 +49,7 @@ outputs:
 
 #### // for human face features recognition  
 we use MobileFaceNet-v2 model  
+at the front layers there are layers of img preprocessing  
 before the output of dims 512, which is too heavy for us  
 we reshaped once, make the features keep in 128 dims  
 ```
