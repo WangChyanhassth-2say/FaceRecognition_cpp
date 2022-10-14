@@ -108,7 +108,7 @@ Detect function
     # we got a loop for multi-faces, so the output is std::vector<bbox>, means multi bboxes  
     
 create_anchor, nms function and compare function  
-    #to conver the model outputs to bboxes format  
+    # for converting the model outputs to bboxes format  
 ```
 
 ##### FaceRec.cpp
