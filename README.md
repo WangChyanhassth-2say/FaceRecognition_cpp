@@ -18,7 +18,6 @@ make
 
 ## Details
 ### // for folders  
-./3rdparty is where the 3rd party libs stay  
 ./images is where test images are  
 ./models is where the onnx models are  
 ./src is where the source files are  
