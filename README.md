@@ -6,7 +6,6 @@ face detect, align, liveness check, recognize via onnx models implemented with c
 ensure you have cmake and makefile  
 ### // for compiling  
 ensure you have opencv in your env  
-onnx lib is provided in ./3rdparty/  
 
 use the command    
 ```
@@ -152,4 +151,3 @@ TODO:
 - [x] provide imgNorm function  
 - [x] provide Release function  
 - [x] provide liveness detector  
-- [ ] provide opencv libs
